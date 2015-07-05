@@ -1,19 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>D3 Test</title>
-        <script type="text/javascript" src="d3/d3.js"></script>
-    </head>
-    <body>
-        <script type="text/javascript">
-            // Your beautiful D3 code will go here
-            d3.select("body").append("p").text("New paragraph!")
+<meta charset="utf-8">
+<style>
 
-            var sung = "asshole";
-        </script>
-        <script type="text/javascript">
-            console.log(sung);
-        </script>
-    </body>
-</html>
+.county{
+    fill: #AAFFFF;
+}
+
+.county-boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var width = 960,
+    height = 1160;
+
+var projection = d3.geo.albersUsa()
+    .scale(1280)
+    .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("us_counties.json", function(error, us) {
+  svg.selectAll(".counties")
+      .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("class", function(d) { return "q" + Math.floor(Math.random()*9) + "-9";})
+      .attr("d", path);
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.counties))
+      .attr("d", path)
+      .attr("class", "county-boundary");
+});
+
+</script>
