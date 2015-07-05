@@ -1,7 +1,7 @@
 # EscherichiaChoropleth
 Georgia Tech: CS4460 Intro to Data Visualization: Inseok Huang, Raghav Kaul, Sung Im
 
-**Download instructions**
+**Download instructions: **
 Clone the repository into a directory of your choice. Unzip the file and change into the newly created directory. Open the html file.
 
 ## Choropleth Projection
@@ -14,7 +14,7 @@ This file is a TopoJSON file created using GDAL to filter and convert the origin
 
 The shape-files (.shp) were downloaded from the U.S. Census Bureau website:
 
-[U.S. Census Bureau](ftp://ftp2.census.gov/geo/tiger/TIGER2014/COUNTY/)
+[U.S. Census Bureau](http://www.census.gov/geo/maps-data/data/tiger-line.html)
 
 **index.html**
 
