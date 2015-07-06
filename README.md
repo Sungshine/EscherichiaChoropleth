@@ -1,7 +1,8 @@
 # EscherichiaChoropleth
 Georgia Tech: CS4460 Intro to Data Visualization: Inseok Huang, Raghav Kaul, Sung Im
 
-**Download instructions: **
+**Download instructions**
+
 Clone the repository into a directory of your choice. Unzip the file and change into the newly created directory. Open the html file.
 
 ## Choropleth Projection
@@ -20,7 +21,7 @@ The shape-files (.shp) were downloaded from the U.S. Census Bureau website:
 
 The main display of the visualization. Uses the example color sequence from Bostock's choropleth example at:
 
-[D3JS Website](d3js.org)
+[D3JS website](d3js.org)
 
 **countyFIPS.csv**
 
