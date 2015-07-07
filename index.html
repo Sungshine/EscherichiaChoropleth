@@ -1,58 +1,85 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
+<head>
+  <!-- Import js here -->
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
 
-.county {
-    fill: #AAFFFF;
-}
+  <!-- Style here -->
+  <link rel="stylesheet" href="index.css">
+  <style>
 
-.county-boundary {
-  fill: none;
-  stroke: #fff;
-  stroke-linejoin: round;
-}
+  .county{
+      fill: #AAFFFF;
+  }
 
-.q0-9 { fill:rgb(247,251,255); }
-.q1-9 { fill:rgb(222,235,247); }
-.q2-9 { fill:rgb(198,219,239); }
-.q3-9 { fill:rgb(158,202,225); }
-.q4-9 { fill:rgb(107,174,214); }
-.q5-9 { fill:rgb(66,146,198); }
-.q6-9 { fill:rgb(33,113,181); }
-.q7-9 { fill:rgb(8,81,156); }
-.q8-9 { fill:rgb(8,48,107); }
+  .county-boundary {
+    fill: none;
+    stroke: #fff;
+    stroke-linejoin: round;
+  }
 
-</style>
+  .q0-9 { fill:rgb(247,251,255); }
+  .q1-9 { fill:rgb(222,235,247); }
+  .q2-9 { fill:rgb(198,219,239); }
+  .q3-9 { fill:rgb(158,202,225); }
+  .q4-9 { fill:rgb(107,174,214); }
+  .q5-9 { fill:rgb(66,146,198); }
+  .q6-9 { fill:rgb(33,113,181); }
+  .q7-9 { fill:rgb(8,81,156); }
+  .q8-9 { fill:rgb(8,48,107); }
+
+  </style>
+</head>
+
+<!-- Main code/website goes here -->
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/topojson.v1.min.js"></script>
-<script>
+  <!-- Make sure to seperate necessary code and imports for easier readability -->
+  <!-- Seperating by div's to clean up code further -->
+  <div id='header'>
+    <div align='center' id='title'>
+      <h1 class='Arial'> 2014 Reported Escherichia coli 0157 </h1>
+    </div>
+  </div>
 
-var width = 960,
-    height = 1160;
+  <div id='filterPanel'>
 
-var projection = d3.geo.albersUsa()
-    .scale(1280)
-    .translate([width / 2, height / 2]);
+  </div>
 
-var path = d3.geo.path()
-    .projection(projection);
+  <div id='choropleth'>
+    <script>
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+      var width = 960,
+          height = 500;
 
-d3.json("us_counties.json", function(error, us) {
-  svg.selectAll(".counties")
-      .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("class", function(d) { return "q" + Math.floor(Math.random()*9) + "-9";})
-      .attr("d", path);
+      var projection = d3.geo.albersUsa();
 
-  svg.append("path")
-      .datum(topojson.mesh(us, us.objects.counties))
-      .attr("d", path)
-      .attr("class", "county-boundary");
-});
+      var path = d3.geo.path()
+          .projection(projection);
 
-</script>
+      var svg = d3.select("#choropleth").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      d3.json("us_counties.json", function(error, us) {
+        svg.selectAll(".counties")
+            .data(topojson.feature(us, us.objects.counties).features)
+          .enter().append("path")
+            .attr("class", function(d) { return "q" + Math.floor(Math.random()*9) + "-9";})
+            .attr("d", path);
+
+        svg.append("path")
+            .datum(topojson.mesh(us, us.objects.counties))
+            .attr("d", path)
+            .attr("class", "county-boundary");
+      });
+
+    </script>
+  </div>
+
+  <div id='details'>
+
+  </div>
+
+
+</body>

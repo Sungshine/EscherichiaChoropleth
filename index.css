@@ -1,0 +1,23 @@
+div#header{
+	border: solid 2px yellow;
+	height: 75px;
+}
+
+div#filterPanel{
+	border: solid 2px red;
+	width:100px;
+	position: absolute;
+	min-height:500px;
+}
+
+div#choropleth{
+	border: solid 2px blue;
+	margin-left: 100px;
+	min-height: 500px;
+}
+
+/*For font/text*/
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+}
