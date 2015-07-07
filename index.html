@@ -38,7 +38,7 @@
   <!-- Seperating by div's to clean up code further -->
   <div id='header'>
     <div align='center' id='title'>
-      <h1 class='Arial'> 2014 Reported Escherichia coli 0157 </h1>
+      <h1 class='Arial'> 2014 Reported Escherichia coli O157 </h1>
     </div>
   </div>
 
@@ -60,6 +60,10 @@
       var svg = d3.select("#choropleth").append("svg")
           .attr("width", width)
           .attr("height", height);
+        
+      d3.csv("EC_data2014.csv")
+          .row(function(d) { return {key: d.key, value: +d.value}; })
+          .get(function(error, rows) { console.log(rows); });
 
       d3.json("us_counties.json", function(error, us) {
         svg.selectAll(".counties")
