@@ -57,26 +57,42 @@
       var path = d3.geo.path()
           .projection(projection);
 
+      var zoom = d3.behavior.zoom()
+          .translate([0,0])
+          .scale(1)
+          .scaleExtent([1,8])
+          .on("zoom", zoomed)
+
       var svg = d3.select("#choropleth").append("svg")
           .attr("width", width)
-          .attr("height", height);
+          .attr("height", height)
+          .call(zoom);
+
+      var vector = svg.append("g");
 
       d3.csv("EC_data2014.csv")
           .row(function(d) { return {key: d.key, value: +d.value}; })
           .get(function(error, rows) { console.log(rows); });
 
       d3.json("us_counties.json", function(error, us) {
-        svg.selectAll(".counties")
+        vector.selectAll(".counties")
             .data(topojson.feature(us, us.objects.counties).features)
           .enter().append("path")
             .attr("class", function(d) { return "q" + Math.floor(Math.random()*9) + "-9";})
             .attr("d", path);
 
-        svg.append("path")
+        vector.append("path")
             .datum(topojson.mesh(us, us.objects.counties))
             .attr("d", path)
             .attr("class", "county-boundary");
       });
+
+      function zoomed() {
+        vector.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        vector.select(".state-border").style("stroke-width", 1.5 / d3.event.scale + "px");
+        vector.select(".county-border").style("stroke-width", .5 / d3.event.scale + "px");
+
+      }
 
     </script>
   </div>
