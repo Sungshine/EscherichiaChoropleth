@@ -22,7 +22,8 @@ with open('countyFIPS_v2.csv', 'rU') as f, open('EC_data2014.csv', 'rU') as d:
 
     with open('newfile.csv', 'wb') as newcsv:
         writer = csv.writer(newcsv, delimiter = ',')
-        writer.writerow([
+        writer.writerow(
+                        [
                          'Key',
                          'SourceState',
                          'StateFIPS',
@@ -41,15 +42,16 @@ with open('countyFIPS_v2.csv', 'rU') as f, open('EC_data2014.csv', 'rU') as d:
                          'Toxin',
                          'VirulenceMarker',
                          'GEOID',
-                         ])
+                        ]
+                       )
 
         for entry in ecoliData:
             id = entry[0]
             state  = entry[1]
             county = entry[7]
             if (state in grandHash.keys()) and (county in grandHash[state].keys()):
-
-                writer.writerow([
+                writer.writerow(
+                                [
                                  id,
                                  state,
                                  stateFIPS.get(state),
@@ -68,4 +70,5 @@ with open('countyFIPS_v2.csv', 'rU') as f, open('EC_data2014.csv', 'rU') as d:
                                  entry[15],
                                  entry[16],
                                  stateFIPS.get(state)+grandHash[state].get(county),
-                                 ])
+                                ]
+                               )
