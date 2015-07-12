@@ -4,6 +4,7 @@
   <!-- Import js here -->
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <!-- script type="text/javascript" src="./tooltip.js"></script>
 
   <!-- Style here -->
@@ -56,14 +57,25 @@
   </div>
 
   <div id='filterPanel'>
-
+    <p> Select Strain Type </p>
+    <div id='straintype'>
+      <select>
+      </select>
+    </div>
+    <p> Select Region Type </p>
+    <div id='countystate'>
+      <select>
+        <option value"county">County</option>
+        <option value="state">State</option>
+      </select>
+    </div>
   </div>
 
   <div id='choropleth'>
     <script>
 
-      var width = 960,
-          height = 500;
+      var width = 1536,
+          height = 800;
 
       var projection = d3.geo.albersUsa();
 
@@ -149,7 +161,8 @@
     	        vector.append("path")
     	            .datum(topojson.mesh(us, us.objects.counties))
     	            .attr("d", path)
-    	            .attr("class", "county-boundary");
+    	            .attr("class", "county-boundary")
+                  .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"});
     	      });
 	  });
 
