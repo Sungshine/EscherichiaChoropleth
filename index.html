@@ -161,8 +161,8 @@
     	        vector.append("path")
     	            .datum(topojson.mesh(us, us.objects.counties))
     	            .attr("d", path)
-    	            .attr("class", "county-boundary")
-                  .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"});
+    	            .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"})
+    	            .attr("class", "county-boundary");
     	      });
 	  });
 
