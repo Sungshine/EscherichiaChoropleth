@@ -33,8 +33,8 @@ var width = 960,height = 500;
     		  });
     		 
     		  var occurrence = {
-					   PFGEBInlpattern : incidence["PFGE-BInl-pattern"],
-					   PFGEXbalpattern : incidence["PFGE-Xbal-pattern"],
+					   PFGEBlnIpattern : incidence["PFGE-BlnI-pattern"],
+					   PFGEXbaIpattern : incidence["PFGE-XbaI-pattern"],
 					   PatientAge : incidence.PatientAge,
 					   PatientSex : incidence.PatientSex,
 					   Serotype : incidence.Serotype,
