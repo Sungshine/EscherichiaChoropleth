@@ -3,8 +3,8 @@
 <head>
   <!-- Import js here -->
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="http://d3js.org/topojson.v1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   
   <!-- Style here -->
@@ -59,25 +59,43 @@
   <div id='filterPanel'>
     <p> Select Strain Type </p>
     <div id='straintype'>
-      <select id="strains"></select>
-        <script >
-            d3.csv("EC_data2014_v2.csv", function(error, data) {
-              var select = d3.select("#strains")
-                  .append("select")
+      <select id="strains" onchange="selected(this.selectedIndex)"></select>
+        <script src="js/jquery.csv-0.71.min.js"></script>
+        <script>
 
-              select
-                .on("change", function(d) {
-                  var value = d3.select(this).property("value");
-                  alert(value);
+            var rawObjects = null;
+
+            function renderCSVDropdown(csv) {
+                    var dropdown = $('select#strains');
+                    for(var i = 0; i < csv.length; i++) {
+                        var record = csv[i];
+                        //console.log("record: " + record["PFGE-XbaI-pattern"]);
+                        var entry = $('<option>').attr('value', record["PFGE-XbaI-pattern"]).html(record["PFGE-XbaI-pattern"]);
+                        dropdown.append(entry);
+                    }
+                    // starts the dropdown as blank
+                    $('#strains').prop("selectedIndex", -1);
+            };
+
+            function popDropdown() {
+
+                var csv_path = "EC_data2014_v2.csv";
+
+                $.get(csv_path, function(data) {
+                    rawObjects = $.csv.toObjects(data);
+                    renderCSVDropdown(rawObjects);
                 });
 
-              select.selectAll("option")
-                  .data(data)
-                .enter().append("option")
-                  .attr("value", function(d) { return d.PFGE-XbaI-pattern; })
-                  .text(function(d) { return d.PFGE-XbaI-pattern; });
-            });
+            };
+
+            popDropdown();
+
+            function selected(index) {
+                console.log("selected " + rawObjects[index]["PFGE-XbaI-pattern"]);
+            }
+
         </script>
+
     </div>
     <p> Select Region Type </p>
     <div id='countystate'>
