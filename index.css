@@ -5,15 +5,15 @@ div#header{
 
 div#filterPanel{
 	border: solid 2px red;
-	width:100px;
+	width: 196px;
 	position: absolute;
-	min-height:500px;
+	min-height:800px;
 }
 
 div#choropleth{
 	border: solid 2px blue;
-	margin-left: 100px;
-	min-height: 500px;
+	margin-left: 200px;
+	min-height: 800px;
 }
 
 /*For font/text*/

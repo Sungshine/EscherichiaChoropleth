@@ -4,7 +4,8 @@
   <!-- Import js here -->
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  
   <!-- Style here -->
   <link rel="stylesheet" href="index.css">
   <style>
@@ -55,11 +56,23 @@
   </div>
 
   <div id='filterPanel'>
-
+    <p> Select Strain Type </p>
+    <div id='straintype'>
+      <select>
+      </select>
+    </div>
+    <p> Select Region Type </p>
+    <div id='countystate'>
+      <select>
+        <option value"county">County</option>
+        <option value="state">State</option>
+      </select>
+    </div>
   </div>
 
   <div id='choropleth'>
-  		<script type="text/javascript" src="./renderMap.js"></script>
+  		<script type="text/javascript" src="./renderMap.js">
+  		</script>
   </div>
 
   <div id='details'>
