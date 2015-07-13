@@ -4,6 +4,7 @@
   <!-- Import js here -->
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   
   <!-- Style here -->
@@ -58,8 +59,25 @@
   <div id='filterPanel'>
     <p> Select Strain Type </p>
     <div id='straintype'>
-      <select>
-      </select>
+      <select id="strains"></select>
+        <script >
+            d3.csv("EC_data2014_v2.csv", function(error, data) {
+              var select = d3.select("#staintype")
+                  .append("select")
+
+              select
+                .on("change", function(d) {
+                  var value = d3.select(this).property("value");
+                  alert(value);
+                });
+
+              select.selectAll("option")
+                  .data(data)
+                .enter().append("option")
+                  .attr("value", function(d) { return d.PFGE-XbaI-pattern; })
+                  .text(function(d) { return d.PFGE-XbaI-pattern; });
+            });
+        </script>
     </div>
     <p> Select Region Type </p>
     <div id='countystate'>
