@@ -3,8 +3,12 @@
 <head>
   <!-- Import js here -->
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="http://d3js.org/topojson.v1.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <link href="nv.d3.min.css" rel="stylesheet">
+    <script src="nv.d3.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   
   <!-- Style here -->
@@ -56,9 +60,9 @@
     </div>
   </div>
 
-  <div id="filterPanel">
+  <div id='filterPanel'>
     <p> Select Strain Type </p>
-    <div id="straintype">
+    <div id='straintype'>
       <select id="strains" onchange="selected(this.selectedIndex)"></select>
         <script src="js/jquery.csv-0.71.min.js"></script>
         <script>
@@ -66,24 +70,26 @@
             var rawObjects = null;
 
             function renderCSVDropdown(csv) {
-                var dropdown = $("select#strains");
-                for(var i = 0; i < csv.length; i++) {
-                    var record = csv[i];
-                    // console.log("record: " + record["PFGE-XbaI-pattern"]);
-                    var entry = $('<option>').attr('value', record["PFGE-XbaI-pattern"]).html(record["PFGE-XbaI-pattern"]);
-                    dropdown.append(entry);
-                }
-                // starts the dropdown as blank
-                $('#strains').prop("selectedIndex", -1);
+                    var dropdown = $('select#strains');
+                    for(var i = 0; i < csv.length; i++) {
+                        var record = csv[i];
+                        //console.log("record: " + record["PFGE-XbaI-pattern"]);
+                        var entry = $('<option>').attr('value', record["PFGE-XbaI-pattern"]).html(record["PFGE-XbaI-pattern"]);
+                        dropdown.append(entry);
+                    }
+                    // starts the dropdown as blank
+                    $('#strains').prop("selectedIndex", -1);
             };
 
             function popDropdown() {
+
                 var csv_path = "EC_data2014_v2.csv";
+
                 $.get(csv_path, function(data) {
                     rawObjects = $.csv.toObjects(data);
                     renderCSVDropdown(rawObjects);
-                });
-            };
+                })};
+
             popDropdown();
 
             function selected(index) {
@@ -96,19 +102,21 @@
     <p> Select Region Type </p>
     <div id='countystate'>
       <select>
-        <option value"county">County</option>
+        <option value="county">County</option>
         <option value="state">State</option>
       </select>
     </div>
   </div>
 
   <div id='choropleth'>
+        <script type="text/javascript" src="./mapTooltip.js">
+        </script>
   		<script type="text/javascript" src="./renderMap.js">
   		</script>
   </div>
 
-  <div id='details'>
-
+  <div id='histogram'>
+    <svg></svg>
   </div>
 
 
