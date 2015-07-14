@@ -2,7 +2,7 @@
  * Renders the map
  */
 
-var width = 960,height = 500;
+var width = 960, height = 500;
 	
 var projection = d3.geo.albersUsa();
 
