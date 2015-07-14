@@ -7,7 +7,36 @@ div#filterPanel{
 	border: solid 2px red;
 	width: 196px;
 	position: absolute;
-	min-height:800px;
+	min-height: 800px;
+}
+
+div#detailsPanel{
+    border: solid 2px green;
+    float: right;
+    width: 196px;
+    min-width: 300px;
+    min-height: 800px;
+}
+
+div#totalCount{
+    border: solid 2px orange;
+    width: 60%;
+    margin: 0 auto;
+    height: 100px;
+}
+
+div#dateRange{
+    border: solid 2px blue;
+    width: 60%;
+    margin: 0 auto;
+    height: 100px;
+}
+
+div#outbreaks{
+    border: solid 2px pink;
+    width: 60%;
+    margin: 0 auto;
+    height: 100px;
 }
 
 div#choropleth{
@@ -18,8 +47,7 @@ div#choropleth{
 
 div#histogram svg{
 	min-width: 960px;
-	min-height: 600px;
-
+	min-height: 300px;
 }
 
 /*For font/text*/
