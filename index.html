@@ -74,8 +74,8 @@
               select.selectAll("option")
                   .data(data)
                 .enter().append("option")
-                  .attr("value", function(d) { return d.PFGE-XbaI-pattern; })
-                  .text(function(d) { return d.PFGE-XbaI-pattern; });
+                  .attr("value", function(d) { return d["PFGE-XbaI-pattern"]; })
+                  .text(function(d) { return d["PFGE-XbaI-pattern"]; });
             });
         </script>
     </div>

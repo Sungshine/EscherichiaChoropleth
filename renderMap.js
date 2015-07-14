@@ -24,7 +24,8 @@ var width = 960,height = 500;
 	  
       d3.csv("EC_data2014_v2.csv", function(data) {
     	  
-    	  var aggrByCounty = []; // an array of cities and their respective incidences
+        // Holds incidences in an associative array [County -> [Incidences]]
+    	  var aggrByCounty = [];
     	  
     	  data.forEach(function(incidence) {
 
