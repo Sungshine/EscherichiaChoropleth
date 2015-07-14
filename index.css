@@ -16,6 +16,12 @@ div#choropleth{
 	min-height: 800px;
 }
 
+div#histogram svg{
+	min-width: 960px;
+	min-height: 600px;
+
+}
+
 /*For font/text*/
 
 h1 {
