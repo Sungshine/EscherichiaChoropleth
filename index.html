@@ -24,6 +24,12 @@
     stroke-linejoin: round;
   }
 
+  .states {
+    fill: none;
+    stroke: #000;
+    stroke-linejoin: round;
+  }
+
   .q0-9 { fill:rgb(247,251,255); }
   .q1-9 { fill:rgb(222,235,247); }
   .q2-9 { fill:rgb(198,219,239); }
@@ -65,7 +71,6 @@
       <select id="strains" onchange="selected(this.selectedIndex)"></select>
         <script src="js/jquery.csv-0.71.min.js"></script>
         <script>
-
             var rawObjects = null;
             var rawStrains = [];
 
@@ -107,10 +112,9 @@
             function selected(index) {
                 console.log("selected " + rawObjects[index]["PFGE-XbaI-pattern"]);
             }
-
         </script>
-
     </div>
+
     <p> Select Region Type </p>
     <div id='countystate'>
       <select>
