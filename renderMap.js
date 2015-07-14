@@ -100,7 +100,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 
 function zoomed() {
   vector.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-  vector.select(".state-boundary").style("stroke-width", 1 / d3.event.scale + "px");
+  vector.select(".states").style("stroke-width", 1 / d3.event.scale + "px");
   vector.select(".county-boundary").style("stroke-width", 1 / d3.event.scale + "px");
 
 }
@@ -209,6 +209,8 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 
     chart.y2Axis
       .tickFormat(d3.format(',.2f'));
+
+    chart.showLegend(false);
 
     d3.select('#histogram svg')
       .datum(data())
