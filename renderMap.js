@@ -90,6 +90,11 @@ d3.csv("EC_data2014_v2.csv", function(data) {
             .attr("d", path)
             .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"})
             .attr("class", "county-boundary");
+
+        vector.append("path")
+            .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+            .attr("class", "states")
+            .attr("d", path);
   });
 });
 
