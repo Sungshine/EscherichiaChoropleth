@@ -39,9 +39,10 @@ div#outbreaks{
     height: 100px;
 }
 
-div#choropleth{
+div#map{
 	border: solid 2px blue;
 	margin-left: 200px;
+	width: 1403px;
 	min-height: 800px;
 }
 
