@@ -34,10 +34,62 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 		Occurrences : []
 	}];
 	
-	var aggrByDate = [{
-		UploadDate : "",
-		Occurrences : []
-	}];
+	var aggrByDate = [];
+
+  function county(GEOID, SourceCounty, SourceState ) {
+    GEOID : GEOID;
+    SourceCounty : SourceCounty;
+    SourceState : SourceState;
+    Occurrences : []
+  }
+
+  function date (UploadDate) {
+    this.UploadDate = UploadDate;
+    this.Occurrences = [];
+  }
+
+  for (i = 0; i < 365; i++) {
+    aggrByDate.push(new date(i));
+  }
+
+  function handleDate(date) {
+    var str = date.split("/");
+    var monthDays = 0, 
+        dayDays = parseInt(str[1]),
+        x = parseInt(str[0]);
+
+
+    console.log(x);
+    console.log(str[1]);
+
+    if (x >= 1)
+      monthDays += 0;
+    if (x >= 2)
+      monthDays += 31;
+    if (x >= 3)
+      monthDays += 28;
+    if (x >= 4)
+      monthDays += 31;
+    if (x >= 5)
+      monthDays += 30;
+    if (x >= 6)
+      monthDays += 31;
+    if (x >= 7)
+      monthDays += 30;
+    if (x >= 8)
+      monthDays += 31;
+    if (x >= 9)
+      monthDays += 31;
+    if (x >= 10)
+      monthDays += 30;
+    if (x >= 11)
+      monthDays += 31;
+    if (x >= 12)
+      monthDays += 30;
+
+    console.log(monthDays + dayDays - 1);
+    return monthDays + dayDays - 1;
+  }
 
 	// Populate arrays
 	data.forEach(function(incidence) {
@@ -45,9 +97,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 			return county.GEOID == incidence.GEOID;
 		});
 		
-		var j = aggrByDate.findIndex(function(date){
-			return date.UploadDate == incidence.UploadDate;
-		});
+		var j = handleDate(incidence.UploadDate);
 
 		// Initialize occurrence object
 		var occurrence = {
@@ -64,28 +114,12 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 				Occurrences : []
 			}) - 1;
 		}
-		
-		if (j < 0) {
-			j = aggrByDate.push( {
-				UploadDate: incidence.UploadDate,
-				Occurrences : []
-			}) - 1;
-		}
 
 		aggrByCounty[i].Occurrences.push(occurrence);
 		aggrByDate[j].Occurrences.push(occurrence);
 	});
 
 	// Draw histogram
-	aggrByDate.sort(function(a,b) {
-		adate = a.UploadDate.split("/");
-		bdate = b.UploadDate.split("/");
-		
-		anum = adate[2] * 1000 + adate[1] * 10 + adate[0];
-		bnum = adate[2] * 1000 + bdate[1] * 10 + bdate[0];
-		
-		return anum - bnum;
-	});
 
 	var data = function() {
 		return d3.range(1).map(function() {
@@ -109,10 +143,10 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 			.tickFormat(d3.format(',f'));
 		
 		chart.yAxis
-			.tickFormat(d3.format(',.2f'));
+			.tickFormat(d3.format(',f'));
 		
 		chart.y2Axis
-			.tickFormat(d3.format(',.2f'));
+			.tickFormat(d3.format(',f'));
 		
 		chart.showLegend(false);
 		
@@ -179,6 +213,17 @@ function zoomed() {
 		.style("stroke-width", 1 / d3.event.scale + "px");
 }
 
+function updatedRange(leftRange, rightRange) {
+  vector.select(".counties")
+    .attr("class", function(d) { 
+      var i = aggrByCounty.findIndex(function(county) {
+        return Number(county.GEOID) == d.id;
+      });
+      var numOccurrences = i >= 0 ? aggrByCounty[i].Occurrences.length : 0;
+      return "q" + Math.floor((numOccurrences / 35) * 9 + 4) + "-9";
+    });
+}
+
 d3.helper = {};
 
 d3.helper.tooltip = function(accessor){
@@ -215,7 +260,9 @@ d3.helper.tooltip = function(accessor){
 };
 
 
-///////////////////////////////////////////////////////////////////////
+//=========================================================================================
+//  Don't touch below, API stuff
+//=========================================================================================
 
 nv.models.lineWithFocusChart = function() {
     "use strict";
@@ -655,8 +702,11 @@ nv.models.lineWithFocusChart = function() {
                 g.select('.nv-focus .nv-y.nv-axis').transition().duration(transitionDuration)
                     .call(yAxis);
 
+// INSEOK'S CODE
+
                 leftRange = extent[0];
                 rightRange = extent[1];
+                updatedRange(leftRange, rightRange);
             }
         });
 
