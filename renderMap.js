@@ -2,7 +2,7 @@
  * Renders the map
  */
 
-var width = 960, height = 500;
+var width = 1399, height = 730;
 	
 var projection = d3.geo.albersUsa();
 
@@ -15,12 +15,27 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([1,8])
     .on("zoom", zoomed)
 
-var svg = d3.select("#choropleth").append("svg")
+var mapSvg = d3.select("#choropleth").append("svg")
     .attr("width", width)
     .attr("height", height)
     .call(zoom);
 
-var vector = svg.append("g");
+var vector = mapSvg.append("g");
+
+var legendSvg = d3.select('#choropleth').append("svg")
+    .attr("width", width)
+    .attr("height", 70)
+    .attr("class", "legend");
+
+
+    for (var i = 0; i < 9; i++) {
+      legendSvg.append("rect")
+        .attr("width", 100)
+        .attr("height", 15)
+        .attr("x", 300 + i * 100)
+        .attr("y", 10)
+        .attr("class", "q" + i + "-9");
+    }
 
 d3.csv("EC_data2014_v2.csv", function(data) {  
 	/* Associative array mapping counties to an array of disease incidences
@@ -58,10 +73,6 @@ d3.csv("EC_data2014_v2.csv", function(data) {
         dayDays = parseInt(str[1]),
         x = parseInt(str[0]);
 
-
-    console.log(x);
-    console.log(str[1]);
-
     if (x >= 1)
       monthDays += 0;
     if (x >= 2)
@@ -87,7 +98,6 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     if (x >= 12)
       monthDays += 30;
 
-    console.log(monthDays + dayDays - 1);
     return monthDays + dayDays - 1;
   }
 
@@ -133,7 +143,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 	}
 	
 	function stream_index(d, i) {
-		return {x: i, y: Math.max(0, d.Occurrences.length)};
+		return {x: i + 1, y: Math.max(0, d.Occurrences.length)};
 	}
 
 	nv.addGraph(function() {
@@ -203,6 +213,19 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 			.attr("class", "states")
 			.attr("d", path);
 	});
+
+
+  // Label legend
+  for (var i = 0; i < 10; i++) {
+    legendSvg.append("text")
+      .attr("id", "ll" + i)
+      .attr("x", 295 + i * 100)
+      .attr("y", 35);
+
+    document.getElementById("ll" + i).innerHTML = Math.floor(35/9 * i);
+  }
+
+
 });
 
 function zoomed() {
