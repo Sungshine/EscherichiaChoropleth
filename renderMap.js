@@ -24,7 +24,7 @@ var vector = mapSvg.append("g");
 
 var legendSvg = d3.select('#choropleth').append("svg")
     .attr("width", width)
-    .attr("height", 70)
+    .attr("height", 50)
     .attr("class", "legend");
 
 
@@ -41,6 +41,8 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 	/* Associative array mapping counties to an array of disease incidences
 	 * of form [city -> [incidences]] 
 	 */
+
+  var totalCount = 0;
 	
 	var aggrByCounty = [{
 		GEOID : 0,
@@ -103,6 +105,9 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 
 	// Populate arrays
 	data.forEach(function(incidence) {
+    totalCount += 1;
+
+
 		var i = aggrByCounty.findIndex(function(county) {
 			return county.GEOID == incidence.GEOID;
 		});
@@ -214,7 +219,6 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 			.attr("d", path);
 	});
 
-
   // Label legend
   for (var i = 0; i < 10; i++) {
     legendSvg.append("text")
@@ -225,7 +229,24 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     document.getElementById("ll" + i).innerHTML = Math.floor(35/9 * i);
   }
 
+  // Label details panel
+  d3.select('#totalCount')
+    .append("text")
+    .attr("id", "tc");
 
+  document.getElementById("tc").innerHTML = totalCount;
+
+  d3.select('#dateRange')
+    .append("text")
+    .attr("id", "dr");
+
+  document.getElementById("dr").innerHTML = "Jan 1 ~ Dec 31";
+
+  d3.select('#outbreaks')
+    .append("text")
+    .attr("id", "ob");
+
+  //  TODO document.getElementById("tc").innerHTML = FILLHERE;
 });
 
 function zoomed() {
@@ -727,8 +748,8 @@ nv.models.lineWithFocusChart = function() {
 
 // INSEOK'S CODE
 
-                leftRange = extent[0];
-                rightRange = extent[1];
+                leftRange = Math.floor(extent[0]);
+                rightRange = Math.floor(extent[1]);
                 updatedRange(leftRange, rightRange);
             }
         });
