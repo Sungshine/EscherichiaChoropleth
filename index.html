@@ -332,13 +332,16 @@ d3.csv("EC_data2014_v2.csv", function(data) {
       })
       .attr("d", path)
       // Add tooltips
-      .call(d3.helper.tooltip(function(d, i) {
-          var i = d.GEOID;
-          if (i >= 0) 
+      .call(d3.helper.tooltip(function(d) {
+          var i = d.id;
+          console.log(i);
+          if (aggrByCounty[i] == null) {
+            return "<b> No reported incidences! </b>"; 
+          }
+          else
             return "<b>"+ aggrByCounty[i].SourceCounty 
               + " County</b> Infected: " 
               + aggrByCounty[i].Occurrences.length;
-          else return "<b> No reported incidences! </b>"; 
       }));
 
     // Modify geographic borders
@@ -416,19 +419,21 @@ function updatedRange(leftRange, rightRange) {
               numOccurrences += 1;
           }
         }
-        console.log(numOccurrences);
-        console.log(numOccurrences + "-q" + Math.floor((numOccurrences / 35) * 9) + "-9");
+        //console.log(numOccurrences);
+        //console.log(numOccurrences + "-q" + Math.floor((numOccurrences / 35) * 9) + "-9");
         return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
       })
       .attr("d", path)
       // Add tooltips
-      .call(d3.helper.tooltip(function(d, i) {
-          var i = d.GEOID;
-          if (i >= 0) 
+      .call(d3.helper.tooltip(function(d) {
+          var i = d.id;
+          if (aggrByCounty[i] == null) {
+            return "<b> No reported incidences! </b>"; 
+          }
+          else
             return "<b>"+ aggrByCounty[i].SourceCounty 
               + " County</b> Infected: " 
               + aggrByCounty[i].Occurrences.length;
-          else return "<b> No reported incidences! </b>"; 
       }));
 
     // Modify geographic borders
@@ -449,11 +454,11 @@ function updatedRange(leftRange, rightRange) {
 d3.helper = {};
 
 d3.helper.tooltip = function(accessor){
-    console.log("reached");
     return function(selection){
         var tooltipDiv;
         var bodyNode = d3.select('body').node();
         selection.on("mouseover", function(d, i){
+    console.log("reached");
             // Clean up lost tooltips
             d3.select('body').selectAll('div.tooltip').remove();
             // Append tooltip
@@ -464,17 +469,17 @@ d3.helper.tooltip = function(accessor){
                 .style('position', 'absolute') 
                 .style('z-index', 1001);
             // Add text using the accessor function
-            var tooltipText = accessor(d, i) || '';
+            var tooltipText = accessor(d) || '';
         })
-        .on('mousemove', function(d, i) {
+        .on('mousemove', function(d) {
             // Move tooltip
             var absoluteMousePos = d3.mouse(bodyNode);
             tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
                 .style('top', (absoluteMousePos[1] - 15)+'px');
-            var tooltipText = accessor(d, i) || '';
+            var tooltipText = accessor(d) || '';
             tooltipDiv.html(tooltipText);
         })
-        .on("mouseout", function(d, i){
+        .on("mouseout", function(d){
             // Remove tooltip
             tooltipDiv.remove();
         });
