@@ -178,10 +178,12 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 	// Draw map
 	d3.json(counties_filename, function(error, us) {
 		// Modify individual counties
+		
 		vector.selectAll(".counties")
 			.data(topojson.feature(us, us.objects.counties).features)
 			.enter().append("path")
-			/* Fill in colors
+			/* 
+			 * Fill in colors
 			 * TODO scaling - not much variation in colors
 			 * TODO efficiency - work is duplicated in mouseover listener
 			 */
@@ -203,8 +205,27 @@ d3.csv("EC_data2014_v2.csv", function(data) {
 							+ " County</b> Infected: " 
 							+ aggrByCounty[i].Occurrences.length;
 					else return "<b> No reported incidences! </b>"; 
-			}));
-
+			}))
+			.on("click", function(d) {
+				var i = aggrByCounty.findIndex(function(county) {
+					return Number(county.GEOID) == d.id;	
+				});
+				console.log(aggrByCounty[i]);
+				$("#Overlay").css({
+					left: '100px',
+					top: '100px',
+					width: 0,
+					height: 0,
+				})
+				//.css(visibility, "visible");
+				.show()
+				.animate({
+					left: 0,
+					top: 0,
+					width: '100%',
+					height: '100%'
+					}, "slow");
+				});
 		// Modify geographic borders
 		vector.append("path")
 			.datum(topojson.mesh(us, us.objects.counties))
@@ -256,6 +277,30 @@ function zoomed() {
 	vector.select(".county-boundary")
 		.style("stroke-width", 1 / d3.event.scale + "px");
 }
+
+function showOverlay(countyname) {
+	console.log("reached");
+	$("#Overlay").css({
+		left: '100px',
+        top: '100px',
+        width: 0,
+        height: 0,
+        visibility:visible
+	})
+    .show()
+    .animate({
+        left: 0,
+        top: 0,
+        width: '100%',
+        height: '100%'
+        }, "slow");
+    
+}
+
+function closeOverlay() {
+   $("#Overlay").hide("slow");
+}
+
 
 function updatedRange(leftRange, rightRange) {
   vector.select(".counties")

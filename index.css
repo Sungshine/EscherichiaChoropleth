@@ -51,6 +51,31 @@ div#histogram svg{
 	min-height: 300px;
 }
 
+.overlay {
+background-color: rgba(0, 0, 0, 0.5);
+color: #333;
+position: absolute;
+width: 100%;
+z-index: 400;
+height: 100%;
+top: 0px;
+display:none; }
+
+.show {
+width:50px;
+height:50px;
+left:40%;
+top:30%;
+background-color:#9C9C9C;
+    position:absolute;
+}
+
+.close {
+width: 13px;
+height: 18px;
+background-color: grey;  
+}
+
 /*For font/text*/
 
 h1 {
