@@ -4,7 +4,9 @@ Georgia Tech: CS4460 Intro to Data Visualization: Inseok Hwang, Raghav Kaul, Sun
 **Demo Instructions**
 
 The usual, clone the repository into a folder and open the html. Do note that the webpage performs few HTTP request, so one must set up a HTTP server before running. For local usages, do
+
     python -m SimpleHTTPServer
+    
  to set up a local HTTP server.
 
 ## Choropleth Projection
