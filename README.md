@@ -1,9 +1,11 @@
 # EscherichiaChoropleth
-Georgia Tech: CS4460 Intro to Data Visualization: Inseok Huang, Raghav Kaul, Sung Im
+Georgia Tech: CS4460 Intro to Data Visualization: Inseok Hwang, Raghav Kaul, Sung Im
 
-**Download instructions**
+**Demo Instructions**
 
-Clone the repository into a directory of your choice. Unzip the file and change into the newly created directory. Open the html file.
+The usual, clone the repository into a folder and open the html. Do note that the webpage performs few HTTP request, so one must set up a HTTP server before running. For local usages, do
+    python -m SimpleHTTPServer
+ to set up a local HTTP server.
 
 ## Choropleth Projection
 Choropleth map using U.S. county data from U.S. Census Bureau. Currently assigns random color value for each county within the range of color sequence defined in the css selection.

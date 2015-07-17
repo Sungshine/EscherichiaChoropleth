@@ -568,7 +568,7 @@ var slidebars = function () {
       <input type="button" id="changerange" value="Change"/>
     </div>
     <div id='animate'>
-      <input type="text" id="daterange" value="Date range"/>
+      <input type="text" id="daysrange" value="Date range"/>
       <input type="text" id="timems" value="Time in ms"/>
       <input type="button" id="animate" value="Animate"/>
       <div canvas="container" class="close-any">
@@ -816,7 +816,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     return {x: i + 1, y: Math.max(0, d.Occurrences.length)};
   }
 
-  histogram = nv.addGraph(function() {
+  nv.addGraph(function() {
     var chart = nv.models.lineWithFocusChart();
     
     chart.xAxis
@@ -836,7 +836,8 @@ d3.csv("EC_data2014_v2.csv", function(data) {
       .datum(data())
       .transition().duration(100)
       .call(chart);
-    
+
+    histogram = chart;
     return chart;
   });
         
@@ -997,7 +998,6 @@ function updatedRange(leftRange, rightRange) {
       }));
 
   });
-  //console.log(rangedOutbreakCount);
   document.getElementById("ob").innerHTML = "" +  rangedOutbreakCount;
 }
 
@@ -1041,14 +1041,30 @@ function updatedRange(leftRange, rightRange) {
 
           };
       };
-    
+
+function setRange(leftRange, rightRange) {
+    histogram.brushExtent([leftRange,rightRange]).update();
+}
+function setIntervalRange(left, days, range, ms) {
+  if (left + range > 365) setRange(left, 365);
+  else setRange(left, left + range );
+  left += days;
+  console.log(left); 
+  if (left >= 365)
+    return;
+  setTimeout(function() {setIntervalRange(left, days, range, ms);}, ms);
+}
+
 $("#changerange").click(function () {
-  console.log("fuck");
-    histogram.brushExtent([$("#leftRange"),$("#rightRange")]).update();
+  setRange(parseInt($("#leftRange").val()), parseInt($("#rightRange").val()));
 });
 
-$("animate").click(function () {
-
+$("#animate").click(function () {
+  var range = parseInt($("#leftRange").val()) + parseInt($("#rightRange").val())
+  var days = parseInt($("#daysrange").val());
+  var ms = $("#timems").val();
+  var left = 1;
+  setIntervalRange(left, days, range, ms);
 });
 
 d3.helper = {};
