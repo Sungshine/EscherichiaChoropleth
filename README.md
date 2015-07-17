@@ -32,3 +32,4 @@ The main display of the visualization. Uses the example color sequence from Bost
 File contains the FIPS codes and their related U.S. counties:
 
 [FIPS county codes wiki](https://en.wikipedia.org/wiki/FIPS_county_code)
+ 
