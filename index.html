@@ -549,18 +549,7 @@ var slidebars = function () {
   </div>
 
   <div id='filterPanel'>
-    <p> Select Strain Type </p>
-    <div id='straintype'>
-      <select id="strains" onchange="selected(this.selectedIndex)"></select>
-    </div>
-	
-    <p> Select Region Type </p>
-    <div id='countystate'>
-      <select>
-        <option value="county">County</option>
-        <option value="state">State</option>
-      </select>
-    </div>
+
 
     <div id='setrange'>
       <input type="text" id="leftRange" value="First day"/>
@@ -568,7 +557,7 @@ var slidebars = function () {
       <input type="button" id="changerange" value="Change"/>
     </div>
     <div id='animate'>
-      <input type="text" id="daysrange" value="Date range"/>
+      <input type="text" id="daysrange" value="Date increment"/>
       <input type="text" id="timems" value="Time in ms"/>
       <input type="button" id="animate" value="Animate"/>
       <div canvas="container" class="close-any">
