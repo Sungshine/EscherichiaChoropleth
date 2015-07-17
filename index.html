@@ -7,59 +7,543 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-  <script src="js/jquery.csv-0.71.min.js"></script>
+    <script src="js/jquery.csv-0.71.min.js"></script>
+  
   <link rel="stylesheet" href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.css" rel="stylesheet">
-  <!-- script type="text/javascript" src="./tooltip.js"></script>
-
+<!--link rel="stylesheet" href="libs/bootstrap.min.css"-->
+		<link rel="stylesheet" href="sidebars.css">
+		<!--link rel="stylesheet" href="demos.css"-->
   <!-- Style here -->
   <link rel="stylesheet" href="index.css">
-  <style>
-   .county{
-      fill: #AAFFFF;
-  }
-
-  .county-boundary {
-    fill: none;
-    stroke: #fff;
-    stroke-linejoin: round;
-  }
-
-  .states {
-    fill: none;
-    stroke: #000;
-    stroke-linejoin: round;
-  }
-
-  .q0-9 { fill:rgb(247,251,255); }
-  .q1-9 { fill:rgb(222,235,247); }
-  .q2-9 { fill:rgb(198,219,239); }
-  .q3-9 { fill:rgb(158,202,225); }
-  .q4-9 { fill:rgb(107,174,214); }
-  .q5-9 { fill:rgb(66,146,198); }
-  .q6-9 { fill:rgb(33,113,181); }
-  .q7-9 { fill:rgb(8,81,156); }
-  .q8-9 { fill:rgb(8,48,107); }
-  
-  
-  .tooltip{ background-color:rgba(68,136,187,0.5);;
-          margin: 10px;
-          height: 50px;
-          width: 150px;
-          padding-left: 10px; 
-          padding-top: 10px;
-    -webkit-border-radius:10px;
-    -moz-border-radius:10px;
-    border-radius:10px;
-        }
-  </style>
 </head>
 
 <!-- Main code/website goes here -->
 <body>
   <!-- Make sure to seperate necessary code and imports for easier readability -->
+  <script>
+  /*!
+ * Slidebars - A jQuery framework for off-canvas menus and sidebars.
+ * Version: 2.0 Beta 11
+ * Url: http://plugins.adchsm.me/slidebars/
+ * Author: Adam Charles Smith
+ * Author url: http://www.adchsm.com/
+ * License: GPL General Pubic License v2.0
+ * License url: http://www.gnu.org/licenses/gpl-2.0.html
+ */
+
+var slidebars = function () {
+	
+	/**
+	 * Setup
+	 */
+	
+	// Cache all canvas elements
+	var canvas = $( '[canvas]' ),
+	
+	// Instances of Slidebars
+	offCanvas = {},
+	
+	// Variables, permitted sides, styles and transitions
+	initialized = false,
+	registered = false,
+	sides = [ 'top', 'right', 'bottom', 'left' ],
+	styles = [ 'reveal', 'push', 'overlay' ],
+
+	// Functions
+	registerSlidebar = function ( id, side, style, element ) {
+		// Check to see if the Slidebar already exists
+		if ( offCanvas.hasOwnProperty( id ) ) {
+			throw "Error attempting to register Slidebar, a Slidebar with ID '" + id + "' already exists.";
+		}
+		
+		// Register the Slidebar
+		offCanvas[ id ] = {
+			'id': id,
+			'side': side,
+			'style': style,
+			'element': element,
+			'active': false
+		};
+	},
+	getAnimationProperties = function ( id ) {
+		// Set variables
+		var elements = $(),
+		amount = '0px, 0px',
+		duration = parseFloat( offCanvas[ id ].element.css( 'transitionDuration' ), 10 ) * 1000;
+		
+		// Elements to animate
+		if ( offCanvas[ id ].style === 'reveal' || offCanvas[ id ].style === 'push' ) {
+			elements = elements.add( canvas );
+		}
+		
+		if ( offCanvas[ id ].style === 'push' || offCanvas[ id ].style === 'overlay' ) {
+			elements = elements.add( offCanvas[ id ].element );
+		}
+		
+		// Amount to animate
+		if ( offCanvas[ id ].active ) {
+			if ( offCanvas[ id ].side === 'top' ) {
+				amount = '0px, ' + offCanvas[ id ].element.css( 'height' );
+			} else if ( offCanvas[ id ].side === 'right' ) {
+				amount = '-' + offCanvas[ id ].element.css( 'width' ) + ', 0px';
+			} else if ( offCanvas[ id ].side === 'bottom' ) {
+				amount = '0px, -' + offCanvas[ id ].element.css( 'height' );
+			} else if ( offCanvas[ id ].side === 'left' ) {
+				amount = offCanvas[ id ].element.css( 'width' ) + ', 0px';
+			}
+		}
+		
+		// Return animation properties
+		return { 'elements': elements, 'amount': amount, 'duration': duration };
+	};
+	
+	/**
+	 * Initialize
+	 */
+	
+	this.init = function ( callback ) {
+		// Check Slidebars hasn't been initialized
+		if ( initialized ) {
+			throw 'You have already initialized Slidebars.';
+		}
+		
+		// Loop through and register Slidebars
+		if ( ! registered ) {
+			$( '[off-canvas]' ).each( function () {
+				// Get the Slidebar parameters
+				var parameters = $( this ).attr( 'off-canvas' ).split( ' ', 3 );
+				
+				// Make sure a valid id, side and style are specified
+				if ( parameters[ 0 ] && sides.indexOf( parameters[ 1 ] ) !== -1 && styles.indexOf( parameters[ 2 ] ) !== -1 ) {
+					// Register Slidebar
+					registerSlidebar( parameters[ 0 ], parameters[ 1 ], parameters[ 2 ], $( this ) );
+				} else {
+					throw "Error attempting to register Slidebar, please specifiy a valid space separated 'id side style'.";
+				}
+			} );
+			
+			// Set registered variable
+			registered = true;
+		}
+		
+		// Set init variable
+		initialized = true;
+		
+		// Set CSS
+		this.css();
+		
+		// Trigger event
+		$( events ).trigger( 'init' );
+		
+		// Run callback
+		if ( typeof callback === 'function' ) {
+			callback();
+		}
+	};
+	
+	this.exit = function ( callback ) {
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// Exit
+		var exit = function () {
+			// Set init variable
+			initialized = false;
+			
+			// Trigger event
+			$( events ).trigger( 'exit' );
+			
+			// Run callback
+			if ( typeof callback === 'function' ) {
+				callback();
+			}
+		};
+		
+		// Call exit, close open Slidebar if active
+		if ( this.active( 'slidebar' ) ) {
+			this.close( exit );
+		} else {
+			exit();
+		}
+	};
+	
+	/**
+	 * CSS
+	 */
+	
+	this.css = function ( callback ) {
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// Loop through Slidebars to set negative margins
+		for ( var id in offCanvas ) {
+			// Check Slidebar has the correct id
+			if ( offCanvas.hasOwnProperty( id ) ) {
+				// Calculate offset
+				var offset;
+				
+				if ( offCanvas[ id ].side === 'top' || offCanvas[ id ].side === 'bottom' ) {
+					offset = offCanvas[ id ].element.css( 'height' );
+				} else {
+					offset = offCanvas[ id ].element.css( 'width' );
+				}
+				
+				// Push and overlay style
+				if ( offCanvas[ id ].style === 'push' || offCanvas[ id ].style === 'overlay' ) {
+					offCanvas[ id ].element.css( 'margin-' + offCanvas[ id ].side, '-' + offset );
+				}
+			}
+		}
+		
+		// Reposition open Slidebars
+		if ( this.active( 'slidebar' ) ) {
+			this.open( this.active( 'slidebar' ) );
+		}
+		
+		// Trigger event
+		$( events ).trigger( 'css' );
+		
+		// Run callback
+		if ( typeof callback === 'function' ) {
+			callback();
+		}
+	};
+	
+	/**
+	 * Controls
+	 */
+	 
+	this.open = function ( id, callback ) {
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// If no id was passed, throw error
+		if ( ! id ) {
+			throw "Error trying to open Slidebar, you must specify an ID.";
+		}
+		
+		// Check to see if the Slidebar exists
+		if ( ! offCanvas.hasOwnProperty( id ) ) {
+			throw "Error trying to open Slidebar, there is no Slidebar with ID '" + id + "'.";
+		}
+		
+		// Open
+		var open = function () {
+			// Set active state to true
+			offCanvas[ id ].active = true;
+			
+			// Display the Slidebar
+			offCanvas[ id ].element.css( 'display', 'block' );
+			
+			// Trigger event
+			$( events ).trigger( 'opening', [ offCanvas[ id ].id ] );
+			
+			// Get animation properties
+			var animationProperties = getAnimationProperties( id );
+			
+			// Apply css			
+			animationProperties.elements.css( {
+				'transition-duration': animationProperties.duration + 'ms',
+				'transform': 'translate(' + animationProperties.amount + ')'
+			} );
+			
+			// Transition completed
+			setTimeout( function () {
+				// Trigger event
+				$( events ).trigger( 'opened', [ offCanvas[ id ].id ] );
+				
+				// Run callback
+				if ( typeof callback === 'function' ) {
+					callback();
+				}
+			}, animationProperties.duration );
+		};
+		
+		// Call open, close open Slidebar if active
+		if ( this.active( 'slidebar' ) && this.active( 'slidebar' ) !== id ) {
+			this.close( open );
+		} else {
+			open();
+		}
+	};
+	
+	this.close = function ( id, callback ) {
+		// Shift callback arguments
+		if ( typeof id === 'function' ) {
+			callback = id;
+			id = null;
+		}
+		
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// Check to see if the Slidebar exists
+		if ( id && ! offCanvas.hasOwnProperty( id ) ) {
+			throw "Error trying to close Slidebar, there is no Slidebar with ID '" + id + "'.";
+		}
+		
+		// If no id was passed, check to see if any Slidebar is open
+		if ( ! id ) {
+			// Loop through Slidebars to find active one
+			for ( var key in offCanvas ) {
+				// Check Slidebar has the correct id
+				if ( offCanvas.hasOwnProperty( key ) ) {
+					// If it's active, set id
+					if ( offCanvas[ key ].active ) {
+						id = key;
+						break;
+					}
+				}
+			}
+		}
+		
+		// Close a Slidebar
+		if ( id && offCanvas[ id ].active ) {
+			// Set active state to false
+			offCanvas[ id ].active = false;
+			
+			// Trigger event
+			$( events ).trigger( 'closing', [ offCanvas[ id ].id ] );
+			
+			// Get animation properties
+			var animationProperties = getAnimationProperties( id );
+			
+			// Apply css
+			animationProperties.elements.css( 'transform', '' );
+			
+			// Transition completetion
+			setTimeout( function () {
+				// Remove transition duration
+				animationProperties.elements.css( 'transition-duration', '' );
+				
+				// Hide the Slidebar
+				offCanvas[ id ].element.css( 'display', 'none' );
+				
+				// Trigger event
+				$( events ).trigger( 'closed', [ offCanvas[ id ].id ] );
+				
+				// Run callback
+				if ( typeof callback === 'function' ) {
+					callback();
+				}
+			}, animationProperties.duration );
+		}
+	};
+	
+	this.toggle = function ( id, callback ) {
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// If no id was passed, throw error
+		if ( ! id ) {
+			throw "Error trying to toggle Slidebar, you must specify an ID.";
+		}
+		
+		// Check to see if the Slidebar exists
+		if ( ! offCanvas.hasOwnProperty( id ) ) {
+			throw "Error trying to toggle Slidebar, there is no Slidebar with ID '" + id + "'.";
+		}
+		
+		// Check its state
+		if ( offCanvas[ id ].active ) {
+			// It's open, close it
+			this.close( id, function () {
+				// Run callback
+				if ( typeof callback === 'function' ) {
+					callback();
+				}
+			} );
+		} else {
+			// It's closed, open it
+			this.open( id, function () {
+				// Run callback
+				if ( typeof callback === 'function' ) {
+					callback();
+				}
+			} );
+		}
+	};
+	
+	/**
+	 * State
+	 */
+	 
+	this.active = function ( query, callback ) {
+		// Shift callback arguments
+		if ( typeof query === 'function' ) {
+			callback = query;
+			query = null;
+		}
+		
+		// Variable to return
+		var active = false;
+		
+		// Check init
+		if ( ! query ) {
+			active = initialized;
+		} else
+		
+		// Check all Slidebars
+		if ( query === 'slidebar' ) {
+			// Check Slidebars has been initialized
+			if ( ! initialized ) {
+				throw 'You need to initialize Slidebars first.';
+			}
+			
+			// Loop through Slidebars
+			for ( var id in offCanvas ) {
+				// Check Slidebar has the correct id
+				if ( offCanvas.hasOwnProperty( id ) ) {
+					// Check if it's active
+					if ( offCanvas[ id ].active ) {
+						// Set the active id
+						active = offCanvas[ id ].id;
+						break;
+					}
+				}
+			}
+		} else
+		
+		// Check specific id
+		{
+			// Check Slidebars has been initialized
+			if ( ! initialized ) {
+				throw 'You need to initialize Slidebars first.';
+			}
+			
+			// Check to see if the Slidebar exists
+			if ( ! offCanvas.hasOwnProperty( query ) ) {
+				throw "Error retrieving state of Slidebar, there is no Slidebar with ID '" + query + "'.";
+			}
+			
+			// Set the active state
+			active = offCanvas[ query ].active;
+		}
+		
+		// Run callback
+		if ( typeof callback === 'function' ) {
+			callback();
+		}
+		
+		// Return
+		return active;
+	};
+	
+	/**
+	 * Manage
+	 */
+	
+	this.create = function ( id, side, style, content, callback ) {
+		// Shift callback arguments
+		if ( typeof content === 'function' ) {
+			callback = content;
+			content = null;
+		}
+		
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// Make sure a valid id, side and style are specified
+		if ( id && sides.indexOf( side ) !== -1 && styles.indexOf( style ) !== -1 ) {
+			// Check to see if the Slidebar exists
+			if ( offCanvas.hasOwnProperty( id ) ) {
+				throw "Error attempting to create Slidebar, a Slidebar with ID '" + id + "' already exists.";
+			}
+			
+			// Create new element
+			$( '<div id="' + id + '" off-canvas="' + id + ' ' + side + ' ' + style + '"></div>' ).appendTo( 'body' );
+			
+			// Add content to the Slidebar
+			if ( content ) {
+				$( '#' + id ).html( content );
+			}
+			
+			// Register the Slidebar
+			registerSlidebar( id, side, style, $( '#' + id ) );
+			
+			// Reset CSS
+			this.css();
+			
+			// Trigger event
+			$( events ).trigger( 'created', [ offCanvas[ id ].id ] );
+			
+			// Run callback
+			if ( typeof callback === 'function' ) {
+				callback();
+			}
+		} else {
+			throw "Error attempting to create Slidebar, please specifiy a valid space separated 'id side style'.";
+		}
+	};
+	
+	this.destroy = function ( id, callback ) {
+		// Check Slidebars has been initialized
+		if ( ! initialized ) {
+			throw 'You need to initialize Slidebars first.';
+		}
+		
+		// If no id was passed, throw error
+		if ( ! id ) {
+			throw "Error trying to destroy Slidebar, you must specify an ID.";
+		}
+		
+		// Check to see if the Slidebar exists
+		if ( ! offCanvas.hasOwnProperty( id ) ) {
+			throw "Error trying to destroy Slidebar, there is no Slidebar with ID '" + id + "'.";
+		}
+		
+		// Destruction
+		var destroy = function () {
+			// Trigger event
+			$( events ).trigger( 'destroyed', [ offCanvas[ id ].id ] );
+			
+			// Remove the element
+			offCanvas[ id ].element.remove();
+			
+			// Remove Slidebar from instances
+			delete offCanvas[ id ];
+			
+			// Run callback
+			if ( typeof callback === 'function' ) {
+				callback();
+			}
+		};
+		
+		// Call destroy, close open Slidebar if active
+		if ( offCanvas[ id ].active ) {
+			this.close( id, destroy );
+		} else {
+			destroy();
+		}
+	};
+	
+	/**
+	 * Events
+	 */
+	
+	// Public
+	this.events = {};
+	
+	// Private
+	var events = this.events;
+};
+  </script>
   <!-- Seperating by div's to clean up code further -->
   <div id='header'>
     <div align='center' id='title'>
+		
       <h1 class='Arial'> 2014 Reported Escherichia coli O157 </h1>
     </div>
   </div>
@@ -69,7 +553,7 @@
     <div id='straintype'>
       <select id="strains" onchange="selected(this.selectedIndex)"></select>
     </div>
-
+	
     <p> Select Region Type </p>
     <div id='countystate'>
       <select>
@@ -87,6 +571,13 @@
       <input type="text" id="daterange" value="Date range"/>
       <input type="text" id="timems" value="Time in ms"/>
       <input type="button" id="animate" value="Animate"/>
+      <div canvas="container" class="close-any">
+			
+			
+		</div>
+		
+		<div id='leftpanel' off-canvas="sb-1 left reveal">
+		</div>      
     </div>
   </div>
 
@@ -120,11 +611,11 @@
 
 
 </body>
-
          <script>
 /**
  * Renders the map
  */
+
 var countySelected = 0;
 
 var countiesFilename = "us_counties_v2.json";
@@ -168,6 +659,14 @@ var legendSvg = d3.select('#choropleth').append("svg")
 
 var aggrByCounty = [];
 
+var sidebarOpen = false;
+
+// Create a new instance of Slidebars
+var controller = new slidebars();
+					
+// Initialize Slidebars
+controller.init();
+					
 function handleDate(date) {
   var str = date.split("/");
   var monthDays = 0, 
@@ -341,7 +840,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     return chart;
   });
         
-        // TODO replace hardcoded file
+        
         d3.json(countiesFilename, function(error, us) {
     // Modify individual counties
     vector.selectAll(".counties")
@@ -363,10 +862,35 @@ d3.csv("EC_data2014_v2.csv", function(data) {
       .attr("d", path)
       .style({'stroke-width': "0.2", 'stroke': "rgba(0, 0, 0, 0.4)"})
       // Add tooltips
+      .on("click", function(d) {
+			
+			var panelText = "";
+			var id = aggrByCounty[d.id];
+			console.log(id);
+				  if (!(id == null)) {
+					  panelText = "<b>" + id.SourceCounty + ", " + id.SourceState + "</b> has infected population of "
+						+ id.Occurrences.length + " with the following strains: ";
+					  id.Occurrences.forEach(function(occurrence) {
+						  panelText += occurrence.PFGEXbaIpattern + "<br>";
+					  });
+					  
+				  } 
+				  document.getElementById('leftpanel').innerHTML = panelText;
+						// Toggle Slidebar
+					if (sidebarOpen) {
+						//console.log("sidebar open. closing...");
+						controller.close( 'sb-1' );
+						sidebarOpen = false;
+					} else {
+						//console.log("sidebar closed. opening...");
+						controller.open( 'sb-1' );
+						sidebarOpen = true;
+					}
+			  })
       .call(d3.helper.tooltip(function(d) {
           var i = d.id;
           if (aggrByCounty[i] == null) {
-            return "<b> No reported incidences! </b>"; 
+            return "No reported incidences"; 
           }
           else
             return "<b>"+ aggrByCounty[i].SourceCounty 
@@ -456,7 +980,7 @@ function updatedRange(leftRange, rightRange) {
       .call(d3.helper.tooltip(function(d) {
           var i = d.id;
           if (aggrByCounty[i] == null) {
-            return "<b> No reported incidences! </b>"; 
+            return "No reported incidences"; 
           }
           else{
             var numOccurrences = 0;
@@ -473,7 +997,7 @@ function updatedRange(leftRange, rightRange) {
       }));
 
   });
-  console.log(rangedOutbreakCount);
+  //console.log(rangedOutbreakCount);
   document.getElementById("ob").innerHTML = "" +  rangedOutbreakCount;
 }
 
@@ -495,6 +1019,8 @@ function updatedRange(leftRange, rightRange) {
                       .style('z-index', 1001);
                   // Add text using the accessor function
                   var tooltipText = accessor(d, i) || '';
+                  console.log("hover tip: " + tooltipText);
+                  if (tooltipText == "") tooltipDiv.remove();
               })
               .on('mousemove', function(d, i) {
                   //Move tooltip
@@ -502,12 +1028,16 @@ function updatedRange(leftRange, rightRange) {
                   tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
                       .style('top', (absoluteMousePos[1] - 15)+'px');
                   var tooltipText = accessor(d, i) || '';
-                  tooltipDiv.html(tooltipText);
+                  console.log("move tip: " + tooltipText);
+                  if (tooltipText == "") {
+					  tooltipDiv.remove();
+				  }
+                  else tooltipDiv.html(tooltipText);
               })
               .on("mouseout", function(d, i){
                   // Remove tooltip
                   tooltipDiv.remove();
-              });
+              })
 
           };
       };
