@@ -7,6 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="js/jquery.csv-0.71.min.js"></script>
   <link rel="stylesheet" href="https://cdn.rawgit.com/novus/nvd3/v1.8.1/build/nv.d3.min.css" rel="stylesheet">
   <!-- script type="text/javascript" src="./tooltip.js"></script>
 
@@ -67,10 +68,6 @@
     <p> Select Strain Type </p>
     <div id='straintype'>
       <select id="strains" onchange="selected(this.selectedIndex)"></select>
-        <script src="js/jquery.csv-0.71.min.js"></script>
-        <script>
-
-        </script>
     </div>
 
     <p> Select Region Type </p>
@@ -79,6 +76,17 @@
         <option value="county">County</option>
         <option value="state">State</option>
       </select>
+    </div>
+
+    <div id='setrange'>
+      <input type="text" id="leftRange" value="First day"/>
+      <input type="text" id="rightRange" value="Second day"/>
+      <input type="button" id="changerange" value="Change"/>
+    </div>
+    <div id='animate'>
+      <input type="text" id="daterange" value="Date range"/>
+      <input type="text" id="timems" value="Time in ms"/>
+      <input type="button" id="animate" value="Animate"/>
     </div>
   </div>
 
@@ -114,13 +122,15 @@
 </body>
 
          <script>
-var alreadyDrawing = 0;
-
+/**
+ * Renders the map
+ */
 var countySelected = 0;
 
 var countiesFilename = "us_counties_v2.json";
 
 var width = 1399, height = 730;
+var histogram = null;
   
 var projection = d3.geo.albersUsa();
 
@@ -192,8 +202,61 @@ function handleDate(date) {
   return monthDays + dayDays - 1;
 }
 
+function handleNameDate(number) {
+  var month = "January", day = 0;
+  if (number > 31) {
+    month = "February";
+    number -= 31;
+  }
+  if (number > 28) {
+    month = "March";
+    number -= 28;
+  }
+  if (number > 31) {
+    month = "April";
+    number -= 31;
+  }
+  if (number > 30) {
+    month = "May";
+    number -= 30;
+  }
+  if (number > 31) {
+    month = "June";
+    number -= 31;
+  }
+  if (number > 30) {
+    month = "July";
+    number -= 30;
+  }
+  if (number > 31) {
+    month = "August";
+    number -= 31;
+  }
+  if (number > 31) {
+    month = "September";
+    number -= 31;
+  }
+  if (number > 30) {
+    month = "October";
+    number -= 30;
+  }
+  if (number > 31) {
+    month = "November";
+    number -= 31;
+  }
+  if (number > 30) {
+    month = "December";
+    number -= 30;
+  }
+  day = number;
+  return month + " " + day;
+}
 
-      d3.csv("EC_data2014_v2.csv", function(data) {
+d3.csv("EC_data2014_v2.csv", function(data) {  
+  /* Associative array mapping counties to an array of disease incidences
+   * of form [city -> [incidences]] 
+   */
+
     	  
     	  var totalCount = 0;
   
@@ -254,14 +317,16 @@ function handleDate(date) {
     return {x: i + 1, y: Math.max(0, d.Occurrences.length)};
   }
 
-  chart = nv.addGraph(function() {
+  histogram = nv.addGraph(function() {
     var chart = nv.models.lineWithFocusChart();
     
     chart.xAxis
-      .tickFormat(d3.format(',f'));
+      .tickFormat(d3.format(',f'))
+      .axisLabel("Days");
     
     chart.yAxis
-      .tickFormat(d3.format(',f'));
+      .tickFormat(d3.format(',f'))
+      .axisLabel("# of Occurrences");
     
     chart.y2Axis
       .tickFormat(d3.format(',f'));
@@ -343,7 +408,7 @@ function handleDate(date) {
     .append("text")
     .attr("id", "ob");
 
-  //  TODO document.getElementById("tc").innerHTML = FILLHERE;
+  document.getElementById("ob").innerHTML = " ";
 });
 
       var mouseDown = 0;
@@ -361,8 +426,11 @@ function zoomed() {
   vector.select("#county-boundary").style("stroke-width", 1 / d3.event.scale + "px");
 }
 
+var rangedOutbreakCount = 0;
 function updatedRange(leftRange, rightRange) {
   d3.json(countiesFilename, function(error, us) {
+  document.getElementById("dr").innerHTML = handleNameDate(leftRange) + "\n ~ \n"  + handleNameDate(rightRange);
+  rangedOutbreakCount = 0;
     // Modify individual counties
     d3.selectAll('#county-boundary')
       .attr("class", function(d) {
@@ -373,8 +441,11 @@ function updatedRange(leftRange, rightRange) {
         else{
           for (var j = 0; j < aggrByCounty[i].Occurrences.length; j++) {
             var numDays = handleDate(aggrByCounty[i].Occurrences[j].UploadDate);
-            if (numDays >= leftRange && numDays <= rightRange)
-              numOccurrences += 1;
+            if (numDays >= leftRange && numDays <= rightRange){
+              numOccurrences++;
+              rangedOutbreakCount++;
+            }
+
           }
         }
         return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
@@ -394,9 +465,10 @@ function updatedRange(leftRange, rightRange) {
       }));
 
   });
+  console.log(rangedOutbreakCount);
+  document.getElementById("ob").innerHTML = "" +  rangedOutbreakCount;
 }
 
-      
       d3.helper = {};
 
       d3.helper.tooltip = function(accessor){
@@ -432,6 +504,51 @@ function updatedRange(leftRange, rightRange) {
           };
       };
 		
+$("#changerange").click(function () {
+  console.log("fuck");
+    histogram.brushExtent([$("#leftRange"),$("#rightRange")]).update();
+});
+
+$("animate").click(function () {
+
+});
+
+d3.helper = {};
+
+d3.helper.tooltip = function(accessor){
+    return function(selection){
+        var tooltipDiv;
+        var bodyNode = d3.select('body').node();
+        selection.on("mouseover", function(d){
+            // Clean up lost tooltips
+            d3.select('body').selectAll('div.tooltip').remove();
+            // Append tooltip
+            tooltipDiv = d3.select('body').append('div').attr('class', 'tooltip');
+            var absoluteMousePos = d3.mouse(bodyNode);
+            tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                .style('top', (absoluteMousePos[1] - 15)+'px')
+                .style('position', 'absolute') 
+                .style('z-index', 999999);
+            // Add text using the accessor function
+            var tooltipText = accessor(d) || '';
+        })
+        .on('mousemove', function(d) {
+            // Move tooltip
+            var absoluteMousePos = d3.mouse(bodyNode);
+            tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                .style('top', (absoluteMousePos[1] - 15)+'px');
+            var tooltipText = accessor(d) || '';
+            tooltipDiv.html(tooltipText);
+        })
+        .on("mouseout", function(d){
+            // Remove tooltip
+            tooltipDiv.remove();
+        });
+
+    };
+};
+
+
 //=========================================================================================
 //  Don't touch below, API stuff
 //=========================================================================================
@@ -879,11 +996,7 @@ nv.models.lineWithFocusChart = function() {
 
                 leftRange = Math.floor(extent[0]);
                 rightRange = Math.floor(extent[1]);
-                if (alreadyDrawing == 0) {
-                  alreadyDrawing = 1;
-                  updatedRange(leftRange, rightRange);
-                }
-                alreadyDrawing = 0;
+                updatedRange(leftRange, rightRange);
 
             }
         });
