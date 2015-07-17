@@ -71,47 +71,7 @@
       <select id="strains" onchange="selected(this.selectedIndex)"></select>
         <script src="js/jquery.csv-0.71.min.js"></script>
         <script>
-            var rawObjects = null;
-            var rawStrains = [];
 
-            function contains(array, item) {
-                for (var i = 0; i < array.length; i++) {
-                    if (array[i] === item) {
-                        return true;
-                    }
-                }
-                return false
-            }
-
-            function renderCSVDropdown(csv) {
-                    var dropdown = $('select#strains');
-                    for(var i = 0; i < csv.length; i++) {
-                        var record = csv[i];
-                        // console.log("record: " + record["PFGE-XbaI-pattern"])
-                        if (!contains(rawStrains, record["PFGE-XbaI-pattern"])) {
-                            rawStrains.push(record["PFGE-XbaI-pattern"]);
-                            var entry = $('<option>').attr('value', record["PFGE-XbaI-pattern"]).html(record["PFGE-XbaI-pattern"]);
-                            dropdown.append(entry);
-                        }
-                    }
-
-                    // starts the dropdown as blank
-                    $('#strains').prop("selectedIndex", -1);
-                    // console.log(rawStrains);
-            };
-
-            function popDropdown() {
-                var csv_path = "EC_data2014_v2.csv";
-                $.get(csv_path, function(data) {
-                    rawObjects = $.csv.toObjects(data);
-                    renderCSVDropdown(rawObjects);
-                })};
-
-            popDropdown();
-
-            function selected(index) {
-                console.log("selected " + rawObjects[index]["PFGE-XbaI-pattern"]);
-            }
         </script>
     </div>
 
@@ -141,9 +101,28 @@
 
   <div id='map'>
     <div id='choropleth'>
-         <script>/**
+
+    </div>
+    <div id ='legend'>
+
+    </div>
+  </div>
+
+  <div id='histogram'>
+    <svg></svg>
+  </div>
+
+
+</body>
+
+
+         <script>
+/**
  * Renders the map
  */
+var alreadyDrawing = 0;
+
+var countySelected = 0;
 
 var counties_filename = "us_counties_v2.json";
 
@@ -268,8 +247,9 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     aggrByDate[j].Occurrences.push(occurrence);
   });
 
-  // Draw histogram
 
+
+  // Draw histogram
   var data = function() {
     return d3.range(1).map(function() {
       return aggrByDate.map(stream_index);
@@ -285,7 +265,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     return {x: i + 1, y: Math.max(0, d.Occurrences.length)};
   }
 
-  nv.addGraph(function() {
+  chart = nv.addGraph(function() {
     var chart = nv.models.lineWithFocusChart();
     
     chart.xAxis
@@ -301,40 +281,35 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     
     d3.select('#histogram svg')
       .datum(data())
-      .transition().duration(500)
+      .transition().duration(100)
       .call(chart);
     
     return chart;
   });
 
-
-
-
-  // Draw map
   d3.json(counties_filename, function(error, us) {
     // Modify individual counties
     vector.selectAll(".counties")
       .data(topojson.feature(us, us.objects.counties).features)
       .enter().append("path")
-      /* Fill in colors
-       * TODO scaling - not much variation in colors
-       * TODO efficiency - work is duplicated in mouseover listener
-       */
-      .attr("class", function(d) { 
+      .attr("id", "county-boundary")
+      .attr("class", function(d) {
         var i = d.id;
-        var numOccurrences;
+        var numOccurrences = 0;
         if (aggrByCounty[i] == null) 
           numOccurrences = 0;
-        else
-          numOccurrences = aggrByCounty[i].Occurrences.length;
-        
+        else{
+          for (var j = 0; j < aggrByCounty[i].Occurrences.length; j++) {
+            numOccurrences += 1;
+          }
+        }
         return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
       })
       .attr("d", path)
+      .style({'stroke-width': "0.2", 'stroke': "rgba(0, 0, 0, 0.4)"})
       // Add tooltips
       .call(d3.helper.tooltip(function(d) {
           var i = d.id;
-          console.log(i);
           if (aggrByCounty[i] == null) {
             return "<b> No reported incidences! </b>"; 
           }
@@ -344,13 +319,6 @@ d3.csv("EC_data2014_v2.csv", function(data) {
               + aggrByCounty[i].Occurrences.length;
       }));
 
-    // Modify geographic borders
-    vector.append("path")
-      .datum(topojson.mesh(us, us.objects.counties))
-      .attr("d", path)
-      .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"})
-      .attr("class", "county-boundary");
-    
     // Modify state borders
     vector.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -388,25 +356,25 @@ d3.csv("EC_data2014_v2.csv", function(data) {
   //  TODO document.getElementById("tc").innerHTML = FILLHERE;
 });
 
+var mouseDown = 0;
+document.body.onmousedown = function() { 
+  ++mouseDown;
+}
+document.body.onmouseup = function() {
+  --mouseDown;
+}
+
 function zoomed() {
   vector.attr("transform", "translate(" + d3.event.translate 
     + ")scale(" + d3.event.scale + ")");
   vector.select(".states").style("stroke-width", 1 / d3.event.scale + "px");
-  vector.select(".county-boundary")
-    .style("stroke-width", 1 / d3.event.scale + "px");
+  vector.select("#county-boundary").style("stroke-width", 1 / d3.event.scale + "px");
 }
 
 function updatedRange(leftRange, rightRange) {
-
   d3.json(counties_filename, function(error, us) {
     // Modify individual counties
-    vector.selectAll(".counties")
-      .data(topojson.feature(us, us.objects.counties).features)
-      .enter().append("path")
-      /* Fill in colors
-       * TODO scaling - not much variation in colors
-       * TODO efficiency - work is duplicated in mouseover listener
-       */
+    d3.selectAll('#county-boundary')
       .attr("class", function(d) {
         var i = d.id;
         var numOccurrences = 0;
@@ -415,15 +383,14 @@ function updatedRange(leftRange, rightRange) {
         else{
           for (var j = 0; j < aggrByCounty[i].Occurrences.length; j++) {
             var numDays = handleDate(aggrByCounty[i].Occurrences[j].UploadDate);
-            if (numDays >= leftRange && numDays < rightRange)
+            if (numDays >= leftRange && numDays <= rightRange)
               numOccurrences += 1;
           }
         }
-        //console.log(numOccurrences);
-        //console.log(numOccurrences + "-q" + Math.floor((numOccurrences / 35) * 9) + "-9");
         return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
       })
       .attr("d", path)
+      .style({'stroke-width': "0.2", 'stroke': "rgba(0, 0, 0, 0.4)"})
       // Add tooltips
       .call(d3.helper.tooltip(function(d) {
           var i = d.id;
@@ -436,18 +403,6 @@ function updatedRange(leftRange, rightRange) {
               + aggrByCounty[i].Occurrences.length;
       }));
 
-    // Modify geographic borders
-    vector.append("path")
-      .datum(topojson.mesh(us, us.objects.counties))
-      .attr("d", path)
-      .style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"})
-      .attr("class", "county-boundary");
-    
-    // Modify state borders
-    vector.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
   });
 }
 
@@ -457,8 +412,7 @@ d3.helper.tooltip = function(accessor){
     return function(selection){
         var tooltipDiv;
         var bodyNode = d3.select('body').node();
-        selection.on("mouseover", function(d, i){
-    console.log("reached");
+        selection.on("mouseover", function(d){
             // Clean up lost tooltips
             d3.select('body').selectAll('div.tooltip').remove();
             // Append tooltip
@@ -467,7 +421,7 @@ d3.helper.tooltip = function(accessor){
             tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
                 .style('top', (absoluteMousePos[1] - 15)+'px')
                 .style('position', 'absolute') 
-                .style('z-index', 1001);
+                .style('z-index', 999999);
             // Add text using the accessor function
             var tooltipText = accessor(d) || '';
         })
@@ -930,11 +884,17 @@ nv.models.lineWithFocusChart = function() {
                 g.select('.nv-focus .nv-y.nv-axis').transition().duration(transitionDuration)
                     .call(yAxis);
 
+
 // INSEOK'S CODE
 
                 leftRange = Math.floor(extent[0]);
                 rightRange = Math.floor(extent[1]);
-                updatedRange(leftRange, rightRange);
+                if (alreadyDrawing == 0) {
+                  alreadyDrawing = 1;
+                  updatedRange(leftRange, rightRange);
+                }
+                alreadyDrawing = 0;
+
             }
         });
 
@@ -1056,16 +1016,44 @@ nv.models.lineWithFocusChart = function() {
     return chart;
 };
 
+var rawObjects = null;
+var rawStrains = [];
+
+function contains(array, item) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === item) {
+            return true;
+        }
+    }
+    return false
+}
+
+function renderCSVDropdown(csv) {
+        var dropdown = $('select#strains');
+        for(var i = 0; i < csv.length; i++) {
+            var record = csv[i];
+            if (!contains(rawStrains, record["PFGE-XbaI-pattern"])) {
+                rawStrains.push(record["PFGE-XbaI-pattern"]);
+                var entry = $('<option>').attr('value', record["PFGE-XbaI-pattern"]).html(record["PFGE-XbaI-pattern"]);
+                dropdown.append(entry);
+            }
+        }
+
+        // starts the dropdown as blank
+        $('#strains').prop("selectedIndex", -1);
+};
+
+function popDropdown() {
+    var csv_path = "EC_data2014_v2.csv";
+    $.get(csv_path, function(data) {
+        rawObjects = $.csv.toObjects(data);
+        renderCSVDropdown(rawObjects);
+    })};
+
+popDropdown();
+
+function selected(index) {
+    // console.log("selected " + rawObjects[index]["PFGE-XbaI-pattern"]);
+}
+
 </script>
-    </div>
-    <div id ='legend'>
-
-    </div>
-  </div>
-
-  <div id='histogram'>
-    <svg></svg>
-  </div>
-
-
-</body>
