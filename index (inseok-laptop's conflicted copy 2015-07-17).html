@@ -129,7 +129,7 @@ var countySelected = 0;
 
 var countiesFilename = "us_counties_v2.json";
 
-var width = 1399, height = 620;
+var width = 1399, height = 730;
 var histogram = null;
   
 var projection = d3.geo.albersUsa();
@@ -257,13 +257,13 @@ d3.csv("EC_data2014_v2.csv", function(data) {
    * of form [city -> [incidences]] 
    */
 
-        
-        var totalCount = 0;
+    	  
+    	  var totalCount = 0;
   
 
-      var aggrByDate = [];
-      
-      function county(GEOID, SourceCounty, SourceState ) {
+			var aggrByDate = [];
+			
+			function county(GEOID, SourceCounty, SourceState ) {
     this.GEOID = GEOID;
     this.SourceCounty = SourceCounty;
     this.SourceState = SourceState;
@@ -279,7 +279,7 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     aggrByDate.push(new date(i));
   }
   
-       data.forEach(function(incidence) {
+    	 data.forEach(function(incidence) {
     totalCount += 1;
 
     // Initialize occurrence object
@@ -340,9 +340,9 @@ d3.csv("EC_data2014_v2.csv", function(data) {
     
     return chart;
   });
-        
-        // TODO replace hardcoded file
-        d3.json(countiesFilename, function(error, us) {
+    	  
+    	  // TODO replace hardcoded file
+    	  d3.json(countiesFilename, function(error, us) {
     // Modify individual counties
     vector.selectAll(".counties")
       .data(topojson.feature(us, us.objects.counties).features)
@@ -458,18 +458,10 @@ function updatedRange(leftRange, rightRange) {
           if (aggrByCounty[i] == null) {
             return "<b> No reported incidences! </b>"; 
           }
-          else{
-            var numOccurrences = 0;
-            for (var j = 0; j < aggrByCounty[i].Occurrences.length; j++) {
-            var numDays = handleDate(aggrByCounty[i].Occurrences[j].UploadDate);
-            if (numDays >= leftRange && numDays <= rightRange){
-              numOccurrences++;
-            }
-          }
+          else
             return "<b>"+ aggrByCounty[i].SourceCounty 
               + " County</b> Infected: " 
-              + numOccurrences;
-          }
+              + aggrByCounty[i].Occurrences.length;
       }));
 
   });
@@ -511,7 +503,7 @@ function updatedRange(leftRange, rightRange) {
 
           };
       };
-    
+		
 $("#changerange").click(function () {
   console.log("fuck");
     histogram.brushExtent([$("#leftRange"),$("#rightRange")]).update();

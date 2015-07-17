@@ -5,23 +5,24 @@ div#header{
 
 div#filterPanel{
 	border: solid 2px red;
-	width: 250px;
+	width: 196px;
 	position: absolute;
-	min-height: 678px;
+	min-height: 800px;
 }
 
 div#detailsPanel{
     border: solid 2px green;
     float: right;
-    min-width: 225px;
-    min-height: 678px;
+    width: 196px;
+    min-width: 300px;
+    min-height: 800px;
 }
 
 div#totalCount{
     border: solid 2px orange;
     width: 60%;
     margin: 0 auto;
-    height: 00px;
+    height: 100px;
 }
 
 div#dateRange{
@@ -40,9 +41,9 @@ div#outbreaks{
 
 div#map{
 	border: solid 2px blue;
-	margin-left: 250px;
+	margin-left: 200px;
 	width: 1403px;
-	min-height: 620px;
+	min-height: 800px;
 }
 
 div#histogram svg{
