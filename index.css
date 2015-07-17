@@ -76,6 +76,44 @@ height: 18px;
 background-color: grey;  
 }
 
+.county{
+      fill: #AAFFFF;
+  }
+
+  .county-boundary {
+    fill: none;
+    stroke: #555;
+    stroke-linejoin: round;
+  }
+
+  .states {
+    fill: none;
+    stroke: #000;
+    stroke-linejoin: round;
+  }
+
+  .q0-9 { fill:rgb(247,251,255); }
+  .q1-9 { fill:rgb(222,235,247); }
+  .q2-9 { fill:rgb(198,219,239); }
+  .q3-9 { fill:rgb(158,202,225); }
+  .q4-9 { fill:rgb(107,174,214); }
+  .q5-9 { fill:rgb(66,146,198); }
+  .q6-9 { fill:rgb(33,113,181); }
+  .q7-9 { fill:rgb(8,81,156); }
+  .q8-9 { fill:rgb(8,48,107); }
+  
+  
+  .tooltip{ background-color:rgba(68,136,187,0.5);;
+          margin: 10px;
+          height: 50px;
+          width: 150px;
+          padding-left: 10px; 
+          padding-top: 10px;
+    -webkit-border-radius:10px;
+    -moz-border-radius:10px;
+    border-radius:10px;
+        }
+
 /*For font/text*/
 
 h1 {

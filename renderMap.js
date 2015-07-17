@@ -1,202 +1,132 @@
-var countiesFilename = "us_counties_v2.json";
+var width = 960,
+          height = 500;
 
-var width = $(window).width, height = $(window).height;
-  
-var projection = d3.geo.albersUsa();
+      var projection = d3.geo.albersUsa();
 
-var path = d3.geo.path()
-    .projection(projection);
+      var path = d3.geo.path()
+          .projection(projection);
 
-var zoom = d3.behavior.zoom()
-    .translate([0,0])
-    .scale(1)
-    .scaleExtent([1,8])
-    .on("zoom", zoomed)
+      var zoom = d3.behavior.zoom()
+          .translate([0,0])
+          .scale(1)
+          .scaleExtent([1,8])
+          .on("zoom", zoomed)
 
-// Initialize map div
-var mapSvg = d3.select("#choropleth").append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .call(zoom);
+      var svg = d3.select("#choropleth").append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .call(zoom);
 
-var vector = mapSvg.append("g");
+      var vector = svg.append("g");
+	  
+      d3.csv("EC_data2014_v2.csv", function(data) {
+    	  
+    	  var aggrByCounty = []; // an array of cities and their respective incidences
+    	  
+    	  data.forEach(function(incidence) {
 
-// Create legend
-var legendSvg = d3.select('#choropleth').append("svg")
-    .attr("width", width)
-    .attr("height", 50)
-    .attr("class", "legend");
+    		  var i = aggrByCounty.findIndex(function(county) {
+    			  return county.GEOID == incidence.GEOID;
+    		  });
+    		 
+    		  var occurrence = {
+					   PFGEBInlpattern : incidence["PFGE-BInl-pattern"],
+					   PFGEXbalpattern : incidence["PFGE-Xbal-pattern"],
+					   PatientAge : incidence.PatientAge,
+					   PatientSex : incidence.PatientSex,
+					   Serotype : incidence.Serotype,
+					   SourceCity : incidence.SourceCity,
+					   SourceSite : incidence.SourceSite,
+					   Toxin : incidence.Toxin
+				   };
+    		 
+    		  if (i < 0) {
+    			  i = aggrByCounty.push( {
+    				  GEOID : incidence.GEOID,
+    				  SourceCounty : incidence.SourceCounty,
+    				  SourceState : incidence.SourceState,
+    				  Occurrences : []
+    			  }) - 1;
+    		  }
+			  /*console.log(aggrByCounty);
+			  console.log("backing size: " + aggrByCounty.length + "\t index: " + i);*/
+    		  aggrByCounty[i].Occurrences.push(occurrence);
 
-for (var i = 0; i < 9; i++) {
-	legendSvg.append("rect")
-		.attr("width", 100)
-		.attr("height", 15)
-		.attr("x", 300 + i * 100)
-		.attr("y", 10)
-		.attr("class", "q" + i + "-9");
-}
+    	  });
+    	  
+    	  // TODO replace hardcoded file
+    	  d3.json("us_counties_v2.json", function(error, us) {
+    	        vector.selectAll(".counties")
+    	            .data(topojson.feature(us, us.objects.counties).features)
+    	          .enter().append("path")
+    	            .attr("class", function(d) { 
+    	            	// TODO efficiency, this work is duplicated in the mouseover listener
+    	            	var i = aggrByCounty.findIndex(function(county) {
+			      			  return Number(county.GEOID) == d.id;
+			      		});
+    	            	
+    	            	var numOccurrences = i >= 0 ? aggrByCounty[i].Occurrences.length : 0;
+    	            	// TODO change scale
+    	            	return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
+    	            })
+    	            .attr("d", path)
+    	       		.call(d3.helper.tooltip(
+    			        function(d, i) {
+    			        	var i = aggrByCounty.findIndex(function(county) {
+    			      			  return Number(county.GEOID) == d.id;
+    			      		});
+    				        if (i >= 0) 
+    				        	return "<b>"+ aggrByCounty[i].SourceCounty 
+    				        		+ " County</b> Infected: " 
+    				        		+ aggrByCounty[i].Occurrences.length;
+    				        else return "<b> No reported incidences! </b>"; 
+    			    }));
+    	        
+    	        vector.append("path")
+    	            .datum(topojson.mesh(us, us.objects.counties))
+    	            .attr("d", path)
+    	            .attr("class", "county-boundary");
+    	      });
+	  });
 
-// Returns the [0, 364]-based ordinal day in the year given a date
-function handleDate(date) {
-  var str = date.split("/");
-  var monthDays = 0, 
-      dayDays = parseInt(str[1]),
-      x = parseInt(str[0]);
+      function zoomed() {
+        vector.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        vector.select(".state-border").style("stroke-width", 1.5 / d3.event.scale + "px");
+        vector.select(".county-border").style("stroke-width", .5 / d3.event.scale + "px");
 
-  if (x >= 1)
-    monthDays += 0;
-  if (x >= 2)
-    monthDays += 31;
-  if (x >= 3)
-    monthDays += 28;
-  if (x >= 4)
-    monthDays += 31;
-  if (x >= 5)
-    monthDays += 30;
-  if (x >= 6)
-    monthDays += 31;
-  if (x >= 7)
-    monthDays += 30;
-  if (x >= 8)
-    monthDays += 31;
-  if (x >= 9)
-    monthDays += 31;
-  if (x >= 10)
-    monthDays += 30;
-  if (x >= 11)
-    monthDays += 31;
-  if (x >= 12)
-    monthDays += 30;
+      }
+      
+      d3.helper = {};
 
-  return monthDays + dayDays - 1;
-}
+      d3.helper.tooltip = function(accessor){
+          return function(selection){
+              var tooltipDiv;
+              var bodyNode = d3.select('body').node();
+              selection.on("mouseover", function(d, i){
+                  // Clean up lost tooltips
+                  d3.select('body').selectAll('div.tooltip').remove();
+                  // Append tooltip
+                  tooltipDiv = d3.select('body').append('div').attr('class', 'tooltip');
+                  var absoluteMousePos = d3.mouse(bodyNode);
+                  tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                      .style('top', (absoluteMousePos[1] - 15)+'px')
+                      .style('position', 'absolute') 
+                      .style('z-index', 1001);
+                  // Add text using the accessor function
+                  var tooltipText = accessor(d, i) || '';
+              })
+              .on('mousemove', function(d, i) {
+                  // Move tooltip
+                  var absoluteMousePos = d3.mouse(bodyNode);
+                  tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                      .style('top', (absoluteMousePos[1] - 15)+'px');
+                  var tooltipText = accessor(d, i) || '';
+                  tooltipDiv.html(tooltipText);
+              })
+              .on("mouseout", function(d, i){
+                  // Remove tooltip
+                  tooltipDiv.remove();
+              });
 
-var aggrByDate = [];
-
-function county(GEOID, SourceCounty, SourceState ) {
-	this.GEOID = GEOID;
-	this.SourceCounty = SourceCounty;
-	this.SourceState = SourceState;
-	this.Occurrences = [];
-}
-
-function date (UploadDate) {
-	this.UploadDate = UploadDate;
-	this.Occurrences = [];
-}
-
-for (i = 0; i < 365; i++) {
-	aggrByDate.push(new date(i));
-}
-
-// Populate arrays
-data.forEach(function(incidence) {
-	totalCount += 1;
-	
-	// Initialize occurrence object
-	var occurrence = {
-		UploadDate : incidence.UploadDate,  
-		PFGEBlnIpattern : incidence["PFGE-BlnI-pattern"],
-		PFGEXbaIpattern : incidence["PFGE-XbaI-pattern"]
-	};
-	
-	var i = parseInt(incidence.GEOID);
-	var j = handleDate(incidence.UploadDate);
-	
-	if (aggrByCounty[i] == null) {
-	  aggrByCounty[i] = new county(i, incidence.SourceCounty, incidence.SourceState);
-	}
-	
-	aggrByCounty[i].Occurrences.push(occurrence);
-	aggrByDate[j].Occurrences.push(occurrence);
-});
-	
-// Draw histogram	
-var data = function() {
-	return d3.range(1).map(function() {
-		return aggrByDate.map(stream_index);
-	}).map(function(data, i) {
-		return {
-			key: 'Stream' + i,
-			values: data
-	  };
-	});
-}
-
-// Draw map
-d3.json(countiesFilename, function(error, us) {
-// Modify individual counties
-vector.selectAll(".counties")
-	.data(topojson.feature(us, us.objects.counties).features)
-	.enter().append("path")
-	/* 
-	* Fill in colors
-	* TODO scaling - not much variation in colors
-	* TODO efficiency - work is duplicated in mouseover listener
-	*/
-	.attr("class", function(d) { 
-		var i = d.id;
-		var numOccurrences;
-		if (aggrByCounty[i] == null) 
-			numOccurrences = 0;
-		else
-			numOccurrences = aggrByCounty[i].Occurrences.length;
-
-		return "q" + Math.floor((numOccurrences / 35) * 9) + "-9";
-	})
-	.attr("d", path)
-	// Add tooltips
-	.call(d3.helper.tooltip(function(d, i) {
-		return "<b>"+"Hello world" + "</b>";
-	}));
-
-// Modify geographic borders
-vector.append("path")
-	.datum(topojson.mesh(us, us.objects.counties))
-	.attr("d", path)
-	.style({'stroke-opacity':1,'stroke': "rgba(0, 0, 0, 0.3)"})
-	.attr("class", "county-boundary");
-
-// Modify state borders
-vector.append("path")
-	.datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-	.attr("class", "states")
-	.attr("d", path);
-});
-
-// Label legend
-for (var i = 0; i < 10; i++) {
-	legendSvg.append("text")
-		.attr("id", "ll" + i)
-		.attr("x", 295 + i * 100)
-		.attr("y", 35);
-	document.getElementById("ll" + i).innerHTML = Math.floor(35/9 * i);
-}
-
-// Label details panel
-d3.select('#totalCount')
-	.append("text")
-	.attr("id", "tc");
-
-document.getElementById("tc").innerHTML = totalCount;
-
-d3.select('#dateRange')
-.append("text")
-.attr("id", "dr");
-
-document.getElementById("dr").innerHTML = "Jan 1 ~ Dec 31";
-
-d3.select('#outbreaks')
-.append("text")
-.attr("id", "ob");
-
-//  TODO document.getElementById("tc").innerHTML = FILLHERE;
-});
-
-function zoomed() {
-vector.attr("transform", "translate(" + d3.event.translate 
-+ ")scale(" + d3.event.scale + ")");
-vector.select(".states").style("stroke-width", 1 / d3.event.scale + "px");
-vector.select(".county-boundary")
-.style("stroke-width", 1 / d3.event.scale + "px");
-}
+          };
+      };
